@@ -1,5 +1,8 @@
 # Serverless Framework
 
+[Source 1](https://serverless.com/)
+[Source 2](lorenstewart.m)
+
 Serverless Architecture is a cloud based backend strategy that works with cloud platforms. There are many out there like OpenWhisk, Google's Cloud Platform, Microsoft Azure, and Amazon Web Services. This project will focus on AWS specifically their serverless architecture Lambda.
 
 AWS Lamda works with a variety of runtime languages such as Java, Python, C#, JavaScript, and many others. Then again, this project will focus on creating serverless aplications on Node.js.

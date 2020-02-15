@@ -1,0 +1,21 @@
+{
+  "name": "yelp_scrapper",
+  "version": "1.0.0",
+  "main": "handler.js",
+  "scripts": {
+    "swarm": "node swarm.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.619.0",
+    "cheerio": "^1.0.0-rc.3",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.5",
+    "uuid": "^3.4.0"
+  },
+  "devDependencies": {
+    "serverless-offline": "^5.12.1",
+    "serverless-offline-scheduler": "^0.4.0"
+  }
+}
