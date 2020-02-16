@@ -1,0 +1,62 @@
+service: rest-api
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  profile: serverless-admin
+  stage: dev
+  region: us-east-1
+  # Connecting to a database can take several seconds, so we increase the default timeout of 6 seconds to 30 seconds.
+  timeout: 30
+  apiKeys:
+    - todoAPI
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "rds:*"
+      Resource: "*"
+
+plugins:
+  - serverless-offline
+
+package:
+  include:
+    - controllers/**
+    - models/**
+    - db.js
+
+functions:
+  listTodos:
+    handler: controllers/read.listTodos
+    events:
+      - http:
+          path: todos
+          method: get
+  getTodo:
+    handler: controllers/read.getTodo
+    events:
+      - http:
+          path: todos/{id}
+          method: get
+          private: true
+  createTodo:
+    handler: controllers/create.createTodo
+    events:
+      - http:
+          path: todos
+          method: post
+          private: true
+  updateTodo:
+    handler: controllers/update.updateTodo
+    events:
+      - http:
+          path: todos/{id}
+          method: patch
+          private: true
+  deleteTodo:
+    handler: controllers/delete.deleteTodo
+    events:
+      - http:
+          path: todos/{id}
+          method: delete
+          private: true

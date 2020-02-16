@@ -173,7 +173,7 @@ Then start the server in the CLI by running: `sls offline start`.
 
 Deploying through serverless is very easy. Simply run `sls deploy` in the CLI. Make sure you have your credentials set up correctly in the provider found inside `serverless.yml`. After running this command, the CLI will output the following:
 
-```cli
+```linux
 $ sls deploy
 Service Information
 service: projects
@@ -203,7 +203,7 @@ In the previous deployment, the `serverless.yml` stage was set as `dev`. To depl
 
 After executing the former command in the CLI, the following output is displayed:
 
-```cli
+```linux
 $ sls deploy -s production
 Service Information
 service: projects
@@ -231,7 +231,7 @@ Now, let's say that in this case we **only** want to deploy the `hello` Lambda f
 
 After executing the former command in the CLI, the following output is displayed:
 
-```cli
+```linux
 $ sls deploy function -s production -f hello
 Serverless: Packaging function: hello...
 Serverless: Excluding development dependencies...
@@ -245,7 +245,7 @@ Serverless: Successfully updated function: hello
 
 It's possible to access the logs of Lambda functions using `serverless`. For example, we can check the `hello` Lambda logs that is deployed to the `production` stage by running the following command:
 
-```cli
+```linux
 sls logs -f hello -s production --startTime 10m
 ```
 
@@ -258,7 +258,7 @@ Where:
 
 This outputs the following logs:
 
-```cli
+```linux
 $ sls logs -f hello -s production --startTime 10m
 START RequestId: <redacted-request-id> Version: $LATEST
 END RequestId: <redacted-request-id>
@@ -267,7 +267,7 @@ REPORT RequestId: <redacted-request-id>  Duration: 2.64 ms       Billed Duration
 
 If we run `sls logs -f hello -s dev --startTime 10m` to check our development stage, the following output is read:
 
-```cli
+```linux
 $ sls logs -f hello -s dev --startTime 10m
 START RequestId: 25678f9c-950f-46c2-8105-d5aa41e9c8f9 Version: $LATEST
 END RequestId: 25678f9c-950f-46c2-8105-d5aa41e9c8f9
@@ -284,7 +284,7 @@ The init duration is the time it takes AWS to fire up our functions. To avoid th
 
 If you want to remove a Lambda Function, then you can run `sls remove -s <stage>` to remove everything associated with the passed stage, e.g. `dev` stage. If we execute the above command in the CLI we receive the following output:
 
-```cli
+```linux
 $ sls remove -s dev
 Serverless: Getting all objects in S3 bucket...
 Serverless: Removing objects in S3 bucket...
@@ -361,7 +361,7 @@ plugins:
 
 Afterwards, start the server with the `--printOutput` flag to be able to read the output of our Lambda functions, then wait for the Cron Job to run. You'll see logs such as these ones:
 
-```cli
+```linux
 $ sls offline start --printOutput
 Serverless: scheduler: scheduling cron_job/cron_job with */1 * * * *
 Serverless: cron_job
@@ -397,5 +397,110 @@ message:  The time is: 2/14/2020
     "body": "{\n  \"message\": \"The time is: 2/14/2020\"\n}"
 }
 ```
+
+## Serverless Information
+
+After deploying, you can check the information of your lambdas, endpoints, stage, etc., by executing the `sls info` command:
+
+```linux
+$ sls info
+Service Information
+service: rest-api
+stage: dev
+region: us-east-1
+stack: rest-api-dev
+resources: 32
+api keys:
+  None
+endpoints:
+  GET - https://<redacted-url>.us-east-1.amazonaws.com/dev/todos/{id}
+  GET - https://<redacted-url>.us-east-1.amazonaws.com/dev/todos
+  POST - https://<redacted-url>.us-east-1.amazonaws.com/dev/todos
+  PATCH - https://<redacted-url>.us-east-1.amazonaws.com/dev/todos/{id}
+  DELETE - https://<redacted-url>.us-east-1.amazonaws.com/dev/todos/{id}
+functions:
+  getTodo: rest-api-dev-getTodo
+  listTodos: rest-api-dev-listTodos
+  createTodo: rest-api-dev-createTodo
+  updateTodo: rest-api-dev-updateTodo
+  deleteTodo: rest-api-dev-deleteTodo
+layers:
+  None
+```
+
+## Securing a Serverless API
+
+The above API is currently configured in a way that anyone can access it. But often, an API needs to be secure and only accessible to a select group of clients, and serverless makes this very easy. If you look at the logs you get after deploying, you'll see a section for `api keys`, right now it says `None`.
+
+If you secure you API, that section will have generated string (e.g. `d41d8cd98f00b204e9800998ecf8427e`) that can be used in request headers to access the API. And if the headers are absent, you get an access denied message in your response. To add an API key, we only need to modify the `serverless.yml` file in order to secure our API, by adding an `api` key property under `provider`.
+
+After an API key is set up, we must secure our routes one by one. To do this, we configure each routes whether we want them to be private or not by adding a `private` property equal to `true` under the `http` property. Below is an example of every route protected, except for the `listTodos` Lambda.
+
+```yml
+service: rest-api
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  profile: serverless-admin
+  stage: dev
+  region: us-east-1
+  # Connecting to a database can take several seconds, so we increase the default timeout of 6 seconds to 30 seconds.
+  timeout: 30
+  apiKeys:
+    - todoAPI
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "rds:*"
+      Resource: "*"
+
+plugins:
+  - serverless-offline
+
+package:
+  include:
+    - controllers/**
+    - models/**
+    - db.js
+
+functions:
+  listTodos:
+    handler: controllers/read.listTodos
+    events:
+      - http:
+          path: todos
+          method: get
+  getTodo:
+    handler: controllers/read.getTodo
+    events:
+      - http:
+          path: todos/{id}
+          method: get
+          private: true
+  createTodo:
+    handler: controllers/create.createTodo
+    events:
+      - http:
+          path: todos
+          method: post
+          private: true
+  updateTodo:
+    handler: controllers/update.updateTodo
+    events:
+      - http:
+          path: todos/{id}
+          method: patch
+          private: true
+  deleteTodo:
+    handler: controllers/delete.deleteTodo
+    events:
+      - http:
+          path: todos/{id}
+          method: delete
+          private: true
+```
+
+---
 
 More information about `serverless` commands [here](https://lorenstewart.me/2017/09/19/serverless-framework-terminal-commands/).
