@@ -1,0 +1,31 @@
+service: s3-notifications
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-east-1
+  profile: serverless-admin
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:*
+      Resource: "*"
+
+plugins:
+  - serverless-offline
+
+package:
+  include:
+    - mailer/**
+
+functions:
+  s3_notification:
+    handler: handler.s3_notification
+    events:
+      - s3:
+          bucket: s3-notifications-serverless-admin # Bucket has to be GLOBALLY unique.
+          event: s3:ObjectCreated:* # Whenever an object is uploaded, it's going to trigger this event.
+          rules:
+            - prefix: documents/ # Only trigger when files are uploaded to the documents folder.
+            - suffix: .pdf # Only trigger when PDF files are uploaded.

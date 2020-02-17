@@ -280,6 +280,29 @@ REPORT RequestId: 869bbe56-68e2-4fef-ac5b-2e9b52c44bc8  Duration: 4.38 ms       
 
 The init duration is the time it takes AWS to fire up our functions. To avoid this delay, you can check out [Cold Starts](https://mikhail.io/serverless/coldstarts/aws/).
 
+### Realtime/Streaming Lambda Logs
+
+To access logs in realtime as you test your Lambdas, you run the following command:
+
+```linux
+sls logs -f <LambdaName> -s <stage> -t
+```
+
+For example:
+
+```linux
+$ sls logs -f s3_notification -s dev -t
+START RequestId: d0393c55-94ba-4ed2-b54f-bd9b60c735bc Version: $LATEST
+2020-02-16 19:16:18.701 (-05:00)        d0393c55-94ba-4ed2-b54f-bd9b60c735bc    INFO
+ uploadData:  {
+  bucketName: 's3-notifications-serverless-admin-bucket',
+  file: 'Landing.jpeg',
+  size: 120331
+}
+END RequestId: d0393c55-94ba-4ed2-b54f-bd9b60c735bc
+REPORT RequestId: d0393c55-94ba-4ed2-b54f-bd9b60c735bc  Duration: 4.36 ms       Billed Duration: 100 ms Memory Size: 1024 MB    Max Memory Used: 70 MB  Init Duration: 117.72 ms
+```
+
 ## Removing Lambda Functions
 
 If you want to remove a Lambda Function, then you can run `sls remove -s <stage>` to remove everything associated with the passed stage, e.g. `dev` stage. If we execute the above command in the CLI we receive the following output:
