@@ -526,4 +526,98 @@ functions:
 
 ---
 
+## Dynamo DB
+
+Amazon's NoSQL database similar to MongoDB, often called Document Databases. To add DynamoDB to the Lambda functions, it must be connected through the `serverless.yml` file by adding the `environment` property to the `provider` to connect the database by setting up an environment (which we will have access to from the Lambda functions), and the `iamRoleStatements` property to the `provider` to add permissions and enable the actions (e.g. `Query`, `Scan`, `GetItem`, `UpdateItem`, etc.). For example:
+
+```yaml
+# serverless.yml
+provider:
+  name: aws
+  runtime: nodejs12.x
+  profile: serverless-admin
+  stage: dev
+  region: us-east-1
+  environment:
+    DYNAMODB_TABLE: yelp-ratings
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self.provider.environment.DYNAMODB_TABLE}"
+```
+
+- `DYNAMODB_TABLE` is the name of the database.
+- `Action` dictates which actions perform with the database due to the `Effect: Allow` property.
+- `Resource` is the AWS DynamoDB's Amazon Resource Name (ARN).
+
+## Cron Job that invokes other Lambda Functions
+
+Let's say we want to schedule news scrapers. To do this, we would have to create a cron job capable of calling or scrapper Lambda function and configure its schedule. It's very simple, but it requires some configuration in the `serverless.yml` file:
+
+```yml
+# serverless.yml
+provider:
+  ...
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "lambda:InvokeFunction"
+      Resource: "*"
+    ...
+
+functions:
+  ...
+  launch_scrappers:
+    handler: handler.launch_scrappers
+    events:
+      - schedule: rate(1 minute)
+```
+
+Notice how the cron job also requires special permissions to call other Lambda functions. To do this simply set a new `Effect: Allow` which to allows Lambda to invoke functions.
+
+---
+
+## S3 Notifications
+
+It's possible for Lambdas to function as notifications after mutating a AWS S3 bucket, e.g. uploading or deleting files. To do this, the `serverless.yml` file must be configured to create a (or to connect to an existing) AWS S3 bucket, to allow the serverless application to do actions on the bucket, the resources, and the Lambda event triggers (e.g. file uploads).
+
+```yml
+service: s3-notifications
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-east-1
+  profile: serverless-admin
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:*
+      Resource: "*"
+
+...
+
+functions:
+  s3_notification:
+    handler: handler.s3_notification
+    events:
+      - s3:
+          bucket: s3-notifications-serverless-admin # Bucket has to be GLOBALLY unique.
+          event: s3:ObjectCreated:* # Whenever an object is uploaded, it's going to trigger this event.
+          rules:
+            - prefix: documents/ # Only trigger when files are uploaded to the documents folder.
+            - suffix: .pdf # Only trigger when PDF files are uploaded.
+```
+
+Serverless official documentation on AWS S3 configurations can be found [here](https://serverless.com/framework/docs/providers/aws/events/s3/).
+
+---
+
 More information about `serverless` commands [here](https://lorenstewart.me/2017/09/19/serverless-framework-terminal-commands/).
