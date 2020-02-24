@@ -1,5 +1,5 @@
+import * as AWS from 'aws-sdk';
 const uuid = require('uuid');
-const AWS = require('aws-sdk');
 
 // Connecting to the database.
 const dynamoDb = new AWS.DynamoDB.DocumentClient();

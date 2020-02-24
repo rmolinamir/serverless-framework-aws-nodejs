@@ -15,4 +15,4 @@ function swarm() {
   });
 }
 
-swarm(list);
+swarm();

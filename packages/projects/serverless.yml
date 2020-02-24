@@ -1,29 +1,35 @@
-# Welcome to Serverless!
-#
-# This file is the main config file for your service.
-# It's very minimal at this point and uses default values.
-# You can always add more config options for more control.
-# We've included some commented out config examples here.
-# Just uncomment any of them to get that config option.
-#
-# For full config options, check the docs:
-#    docs.serverless.com
-#
-# Happy Coding!
-
 service: projects
 
+package:
+  # Pack each function individually
+  individually: true
+  # At first serverless will apply the globs defined in exclude. After that it'll add all the globs from include.
+  exclude:
+    - ./**
+    - '!package.json'
+    # - '!dist/**'
+    - '!node_modules/**'
+  # You can always re-include previously excluded files and directories.  
+  include:
+    # General
+    - "!{../../,}{**/,}.DS_Store"
+    - "!{../,}{**/,}.vscode/**"
+    # Dependencies
+    - "!{../../,}{**/,}node_modules/aws-sdk/**"
+    - "!{../../,}{**/,}node_modules/{@*/*,*}/CHANGELOG.md"
+    - "!{../../,}{**/,}node_modules/{@*/*,*}/README.md"
+
 plugins:
+  - serverless-jetpack
   - serverless-offline
   - serverless-offline-scheduler
 
-# app and org for use with dashboard.serverless.com
-#app: your-app-name
-#org: your-org-name
-
-# You can pin your service to only deploy with a specific Serverless version
-# Check out our docs for more details
-# frameworkVersion: "=X.X.X"
+custom:
+  jetpack:
+    base: "../.." # Search for hoisted dependencies to one parent above normal.
+  projectName: serverless_projects # Project name under the services will be defined in
+  stage: ${{opt:stage, self:provider.stage}}
+  region: ${{opt:region, self:provider.region}}
 
 provider:
   name: aws
@@ -62,7 +68,7 @@ include:
 
 functions:
   hello:
-    handler: handler.hello
+    handler: dist/handler.hello
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -98,10 +104,10 @@ functions:
 #          conditions:
 #            host: example.com
 #            path: /hello
-  cron_job:
-    handler: handler.cron_job
-    events:
-      - schedule: rate(1 minute)
+  # cron_job:
+  #   handler: handler.cron_job
+  #   events:
+  #     - schedule: rate(1 minute)
 
 #    Define function environment variables here
 #    environment:

@@ -1,7 +1,21 @@
-'use strict';
+import { APIGatewayEvent } from 'aws-lambda';
 const { getPage, parsePage, saveRatingsToDb, deployScraper } = require('./utils');
 
-module.exports.scrape = async businessName => {
+declare namespace YelpScrapper {
+  interface ILambdaReturn {
+    statusCode: 200
+    body: string
+  }
+  type scrapeFunction = (businessName: string) => Promise<Error | ILambdaReturn>
+  type launchScrappersFunction = () => Promise<void>
+}
+
+
+export const hello = () => {
+  return 'Hello from Yelp Scrapper';
+}
+
+export const scrape: YelpScrapper.scrapeFunction = async businessName => {
   // 1. Fetch Yelp Page.
   const page = await getPage(businessName);
 
@@ -24,7 +38,7 @@ module.exports.scrape = async businessName => {
   }
 };
 
-module.exports.launch_scrappers = async () => {
+export const launch_scrappers: YelpScrapper.launchScrappersFunction = async () => {
   // 1. List of business names.
   const fakeDatabaseResults = [
     'the-gyro-grill-plantation',

@@ -1,4 +1,4 @@
-const AWS = require('aws-sdk');
+import * as AWS from 'aws-sdk';
 
 module.exports = function deployScraper(businessName) {
   const lambda = new AWS.Lambda({

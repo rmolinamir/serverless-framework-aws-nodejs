@@ -1,0 +1,28 @@
+{
+  "name": "serverless-framework-aws-nodejs",
+  "version": "1.0.0",
+  "description": "[Source 1](https://serverless.com/)\r [Source 2](lorenstewart.m)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bootstrap": "lerna bootstrap --hoist --ignore-scripts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rmolinamir/serverless-framework-aws-nodejs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rmolinamir/serverless-framework-aws-nodejs/issues"
+  },
+  "homepage": "https://github.com/rmolinamir/serverless-framework-aws-nodejs#readme",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.44",
+    "@types/node": "^13.7.4",
+    "lerna": "^3.20.2",
+    "serverless-jetpack": "^0.8.1",
+    "serverless-offline": "^5.12.1",
+    "serverless-offline-scheduler": "^0.4.0"
+  }
+}
