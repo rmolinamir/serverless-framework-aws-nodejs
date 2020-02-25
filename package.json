@@ -24,5 +24,9 @@
     "serverless-jetpack": "^0.8.1",
     "serverless-offline": "^5.12.1",
     "serverless-offline-scheduler": "^0.4.0"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "serverless-http": "^2.3.1"
   }
 }

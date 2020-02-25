@@ -66,7 +66,7 @@ DataBatchProcessorOutputForwarder
 
 DataBatchProcessorOutputForwarder:
 
-Type: 
+Type:
 Choice
 
 Choices:
@@ -77,18 +77,18 @@ Choices:
 StringEquals:
 "DataBatchProcessor"
 
-Next: 
+Next:
 DataBatchProcessor
 
-Default: 
+Default:
 Notifier
 
 Notifier:
 
-Type: 
+Type:
 Task
 
-Resource: 
+Resource:
 arn:aws:lambda:${{self:custom.region}}:#{AWS::AccountId}:function:${{self:custom.projectName}}-Importer-Notifier-${{self:custom.stage}}
 
 End: 
@@ -167,8 +167,7 @@ variableSyntax:
 4. Lambda Proxy for Express app:
 
 ```ts
-const 
-serverless = require('serverless-http');
+const serverless = require('serverless-http');
 
 import { 
 APIGatewayEvent, APIGatewayProxyResult,

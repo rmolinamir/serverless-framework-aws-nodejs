@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "lib": ["es6", "dom", "esnext"],
+    "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src"]
+}

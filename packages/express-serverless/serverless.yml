@@ -1,0 +1,62 @@
+service: my-express-application
+
+package:
+  # Pack each function individually
+  individually: true
+  # At first serverless will apply the globs defined in exclude. After that it'll add all the globs from include.
+  exclude:
+    - ./**
+    - '!package.json'
+    # - '!dist/**'
+    - '!node_modules/**'
+  # You can always re-include previously excluded files and directories.  
+  include:
+    # General
+    - "!{../../,}{**/,}.DS_Store"
+    - "!{../,}{**/,}.vscode/**"
+    # Dependencies
+    - "!{../../,}{**/,}node_modules/aws-sdk/**"
+    - "!{../../,}{**/,}node_modules/{@*/*,*}/CHANGELOG.md"
+    - "!{../../,}{**/,}node_modules/{@*/*,*}/README.md"
+
+plugins:
+  - serverless-jetpack
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  profile: serverless-admin
+  stage: dev
+  region: us-east-1
+
+custom:
+  jetpack:
+    base: "../.." # Search for hoisted dependencies to one parent above normal.
+  projectName: serverless_projects # Project name under the services will be defined in
+  stage: ${{opt:stage, self:provider.stage}}
+  region: ${{opt:region, self:provider.region}}
+
+functions:
+  app:
+    handler: dist/index.handler
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'
+  # # We also lose some of the benefits of the serverless architecture. I can isolate
+  # # my bits of logic into separate functions and get a decent look at my application from
+  # # standard metrics. If each route is handled by a different Lambda function, then I can see:
+  # # - How many times each route is invoked
+  # # - How many errors I have for each route
+  # # - How long each route takes (and how much money I could save if I made that route faster)
+  # # Luckily, you can still get these things if you want them! You can configure your serverless.yml so
+  # # that different routes are routed to different instances of your function.
+  # # Each function instance will have the same code, but they'll be segmented for metrics purposes:
+  # getUser:
+  #   handler: index.handler
+  #   events:
+  #     - http: 'GET /users/{proxy+}'
+  # createUser:
+  #   handler: index.handler
+  #   events:
+  #     - http: 'POST /users'

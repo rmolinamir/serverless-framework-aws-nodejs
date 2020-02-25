@@ -1,4 +1,6 @@
 # package directories
+.serverless/
+dist/
 node_modules/
 jspm_packages/
 mailer/config.js
