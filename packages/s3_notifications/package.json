@@ -9,7 +9,7 @@
   "license": "ISC",
   "dependencies": {
     "moment-timezone": "^0.5.27",
-    "nodemailer": "^6.4.2"
+    "nodemailer": "^6.4.16"
   },
   "devDependencies": {
     "serverless-offline": "^5.12.1"
